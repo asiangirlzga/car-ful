@@ -17,6 +17,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check project layout
+        run: |
+          ls -la
+          test -f settings.gradle || { echo "::error::settings.gradle is not in the repo root. Upload the CONTENTS of the TVDriveLite folder, not the folder itself."; exit 1; }
+          test -f app/src/main/AndroidManifest.xml || { echo "::error::app/src/main/AndroidManifest.xml is missing."; exit 1; }
+          find app -type f
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -40,7 +47,7 @@ jobs:
           KEYSTORE_PASSWORD: tvdrive123
           KEY_ALIAS: tvdrive
           KEY_PASSWORD: tvdrive123
-        run: gradle assembleRelease --no-daemon --stacktrace
+        run: gradle assembleRelease --no-daemon --console=plain
 
       - name: Rename APK
         run: cp app/build/outputs/apk/release/app-release.apk TVDriveLite.apk
@@ -50,6 +57,13 @@ jobs:
         with:
           name: TVDriveLite-apk
           path: TVDriveLite.apk
+
+      - name: Upload build reports (only if the build failed)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-reports
+          path: app/build/reports
 
       - name: Publish GitHub Release (only for tags like v1.0)
         if: startsWith(github.ref, 'refs/tags/v')
