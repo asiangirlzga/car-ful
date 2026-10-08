@@ -144,7 +144,7 @@ final class GameView extends SurfaceView implements SurfaceHolder.Callback, Runn
             Canvas c = null;
             try {
                 c = holder.lockCanvas();
-                if (c != null) draw(c);
+                if (c != null) render(c);
             } finally {
                 if (c != null) holder.unlockCanvasAndPost(c);
             }
@@ -231,7 +231,7 @@ final class GameView extends SurfaceView implements SurfaceHolder.Callback, Runn
     // --------------------------------------------------------------- draw
     private int theme() { return ((int) (dist / 1500f)) % 3; }
 
-    private void draw(Canvas c) {
+    private void render(Canvas c) {
         final int t = theme();
         c.drawColor(GRASS[t]);
         c.save();
